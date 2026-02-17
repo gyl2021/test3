@@ -6,17 +6,38 @@ const DEFAULT_TIMEOUT = 30000;
 const N8N_WEBHOOK_URL = '';
 
 /**
- * Header Auth 宏定义（手动配置）
- * 结构为 [key, value] 的二维数组，便于统一维护。
- * 例如：
- * const N8N_AUTH_HEADERS = [
- *   ['X-API-KEY', 'your-api-key'],
- *   ['Authorization', 'Bearer xxx']
- * ];
+ * n8n Header Auth 模式：
+ * - 'none'        不加鉴权头
+ * - 'bearer'      自动拼接 Authorization: Bearer <token>
+ * - 'x-api-key'   自动拼接 X-API-KEY: <token>
+ * - 'custom'      使用 N8N_AUTH_HEADERS 数组
+ */
+const N8N_AUTH_MODE = 'none';
+
+/**
+ * 当 N8N_AUTH_MODE 为 bearer/x-api-key 时使用。
+ */
+const N8N_AUTH_TOKEN = '';
+
+/**
+ * 自定义 Header Auth 宏定义（手动配置）
+ * 结构为 [key, value] 的二维数组。
  */
 const N8N_AUTH_HEADERS = [];
 
 function buildAuthHeaders() {
+  if (N8N_AUTH_MODE === 'bearer') {
+    return N8N_AUTH_TOKEN ? { Authorization: `Bearer ${N8N_AUTH_TOKEN}` } : {};
+  }
+
+  if (N8N_AUTH_MODE === 'x-api-key') {
+    return N8N_AUTH_TOKEN ? { 'X-API-KEY': N8N_AUTH_TOKEN } : {};
+  }
+
+  if (N8N_AUTH_MODE !== 'custom') {
+    return {};
+  }
+
   return N8N_AUTH_HEADERS.reduce((headers, pair) => {
     if (!Array.isArray(pair) || pair.length < 2) return headers;
 
@@ -26,6 +47,33 @@ function buildAuthHeaders() {
     headers[key] = String(value);
     return headers;
   }, {});
+}
+
+function formatError(statusCode, payload) {
+  const detail = extractErrorDetail(payload);
+  return detail ? `n8n 请求失败，HTTP ${statusCode}：${detail}` : `n8n 请求失败，HTTP ${statusCode}`;
+}
+
+function extractErrorDetail(payload) {
+  if (!payload) return '';
+
+  if (typeof payload === 'string') return payload;
+
+  if (Array.isArray(payload)) {
+    return payload.map((item) => extractErrorDetail(item)).filter(Boolean).join('; ');
+  }
+
+  if (typeof payload === 'object') {
+    return (
+      payload.message ||
+      payload.error ||
+      payload.reason ||
+      payload.description ||
+      ''
+    );
+  }
+
+  return '';
 }
 
 /**
@@ -58,7 +106,7 @@ function callN8NWebhook({ message, history = [] }) {
       },
       success: (res) => {
         if (res.statusCode < 200 || res.statusCode >= 300) {
-          reject(new Error(`n8n 请求失败，HTTP ${res.statusCode}`));
+          reject(new Error(formatError(res.statusCode, res.data)));
           return;
         }
 
@@ -101,5 +149,7 @@ function normalizeResponse(payload) {
 module.exports = {
   callN8NWebhook,
   N8N_WEBHOOK_URL,
+  N8N_AUTH_MODE,
+  N8N_AUTH_TOKEN,
   N8N_AUTH_HEADERS
 };
