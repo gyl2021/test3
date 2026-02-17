@@ -7,7 +7,7 @@ Page({
     messages: [
       {
         role: 'assistant',
-        content: '你好，我是 N8N 对话助手。Webhook 与认证请在 utils/n8n.js 中手动配置，然后开始聊天。',
+        content: '你好，我是 N8N 对话助手。Webhook 与认证请在 utils/n8n.js 的宏定义中手动配置，然后开始聊天。',
         files: []
       }
     ]

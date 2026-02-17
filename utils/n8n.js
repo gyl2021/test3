@@ -1,21 +1,31 @@
 const DEFAULT_TIMEOUT = 30000;
 
 /**
- * 预留 Webhook URL 接口：按需在此处返回 n8n webhook 地址。
+ * n8n Webhook 宏定义（手动配置）
  */
-function getWebhookUrl() {
-  return '';
-}
+const N8N_WEBHOOK_URL = '';
 
 /**
- * 预留 Header Auth 接口：按需在此处返回认证头。
+ * Header Auth 宏定义（手动配置）
+ * 结构为 [key, value] 的二维数组，便于统一维护。
  * 例如：
- * return {
- *   'X-API-KEY': 'your-api-key'
- * };
+ * const N8N_AUTH_HEADERS = [
+ *   ['X-API-KEY', 'your-api-key'],
+ *   ['Authorization', 'Bearer xxx']
+ * ];
  */
-function getAuthHeaders() {
-  return {};
+const N8N_AUTH_HEADERS = [];
+
+function buildAuthHeaders() {
+  return N8N_AUTH_HEADERS.reduce((headers, pair) => {
+    if (!Array.isArray(pair) || pair.length < 2) return headers;
+
+    const [key, value] = pair;
+    if (!key || value === undefined || value === null || value === '') return headers;
+
+    headers[key] = String(value);
+    return headers;
+  }, {});
 }
 
 /**
@@ -26,16 +36,15 @@ function getAuthHeaders() {
  */
 function callN8NWebhook({ message, history = [] }) {
   return new Promise((resolve, reject) => {
-    const webhookUrl = getWebhookUrl();
-    if (!webhookUrl) {
-      reject(new Error('请先在 utils/n8n.js 的 getWebhookUrl() 中填写 n8n Webhook URL'));
+    if (!N8N_WEBHOOK_URL) {
+      reject(new Error('请先在 utils/n8n.js 中配置 N8N_WEBHOOK_URL'));
       return;
     }
 
-    const authHeaders = getAuthHeaders();
+    const authHeaders = buildAuthHeaders();
 
     wx.request({
-      url: webhookUrl,
+      url: N8N_WEBHOOK_URL,
       method: 'POST',
       timeout: DEFAULT_TIMEOUT,
       header: {
@@ -91,6 +100,6 @@ function normalizeResponse(payload) {
 
 module.exports = {
   callN8NWebhook,
-  getWebhookUrl,
-  getAuthHeaders
+  N8N_WEBHOOK_URL,
+  N8N_AUTH_HEADERS
 };

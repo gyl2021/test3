@@ -1,7 +1,7 @@
 <view class="page">
   <view class="config-card">
     <view class="title">N8N 配置</view>
-    <view class="hint">Webhook URL 与 Header Auth 均在代码接口中配置（utils/n8n.js）</view>
+    <view class="hint">Webhook URL 与 Header Auth 均在 utils/n8n.js 的宏定义中配置</view>
   </view>
 
   <scroll-view class="chat-list" scroll-y enable-flex>

@@ -5,7 +5,7 @@
 - 使用 **n8n webhook（POST）** 调用后端工作流
 - 对话框聊天模式
 - 展示 n8n 返回的引用文件信息（文件名 / 来源 / 摘要）
-- 预留 Webhook URL 与 Header Auth 接口（均在代码内部配置，不在页面输入）
+- 采用宏定义/数组方式维护 Webhook URL 与 Header Auth（不在页面输入）
 
 ## 目录结构
 
@@ -24,24 +24,25 @@
     └── n8n.js
 ```
 
-## 手动配置（代码内）
+## 手动配置（宏定义/数组）
 
 编辑 `utils/n8n.js`：
 
 ```js
-function getWebhookUrl() {
-  return 'https://your-n8n-domain/webhook/xxx';
-}
+const N8N_WEBHOOK_URL = 'https://your-n8n-domain/webhook/xxx';
 
-function getAuthHeaders() {
-  return {
-    'X-API-KEY': 'your-api-key'
-    // 或 Authorization: 'Bearer xxx'
-  };
-}
+const N8N_AUTH_HEADERS = [
+  ['X-API-KEY', 'your-api-key']
+  // ['Authorization', 'Bearer xxx']
+];
 ```
 
-> 页面中已取消 Webhook 和认证输入框，你可直接在上述两个函数里手动维护。
+说明：
+- `N8N_WEBHOOK_URL`：n8n webhook 地址。  
+- `N8N_AUTH_HEADERS`：Header 认证数组，每项是 `[headerName, headerValue]`。  
+- 内部会自动将数组转换为请求头对象。
+
+> 页面中已取消 Webhook 和认证输入框，你可直接在宏定义里手动维护。
 
 ## n8n 返回格式建议
 
@@ -68,7 +69,7 @@ function getAuthHeaders() {
 ## 使用说明
 
 1. 在微信开发者工具中导入本目录。
-2. 在 `utils/n8n.js` 中填写 `getWebhookUrl()` 与 `getAuthHeaders()`。
+2. 在 `utils/n8n.js` 中填写 `N8N_WEBHOOK_URL` 与 `N8N_AUTH_HEADERS`。
 3. 输入消息并发送。
 
 > 注意：需在小程序后台将 n8n 域名配置到 request 合法域名中。
