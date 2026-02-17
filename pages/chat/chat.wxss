@@ -1,0 +1,140 @@
+.page {
+  padding: 24rpx;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.config-card {
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(15, 23, 42, 0.08);
+}
+
+.title {
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+
+.row {
+  display: flex;
+  gap: 12rpx;
+}
+
+.input {
+  background: #f8fafc;
+  border: 1rpx solid #e2e8f0;
+  border-radius: 10rpx;
+  padding: 14rpx;
+  font-size: 28rpx;
+  margin-bottom: 10rpx;
+}
+
+.half {
+  flex: 1;
+}
+
+.chat-list {
+  flex: 1;
+  min-height: 500rpx;
+}
+
+.msg {
+  margin-bottom: 16rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.msg-user {
+  align-items: flex-end;
+}
+
+.msg-assistant {
+  align-items: flex-start;
+}
+
+.bubble {
+  max-width: 90%;
+  border-radius: 14rpx;
+  padding: 16rpx;
+  font-size: 28rpx;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.msg-user .bubble {
+  background: #2563eb;
+  color: white;
+}
+
+.msg-assistant .bubble {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.file-list {
+  margin-top: 10rpx;
+  background: #eef2ff;
+  border-radius: 12rpx;
+  padding: 12rpx;
+  width: 90%;
+}
+
+.file-title {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #3730a3;
+  margin-bottom: 8rpx;
+}
+
+.file-item {
+  background: #fff;
+  border-radius: 10rpx;
+  padding: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+.file-name {
+  font-size: 24rpx;
+  color: #1e1b4b;
+  font-weight: 500;
+}
+
+.file-source,
+.file-snippet {
+  font-size: 22rpx;
+  color: #475569;
+  margin-top: 4rpx;
+}
+
+.loading {
+  text-align: center;
+  color: #64748b;
+  font-size: 24rpx;
+  padding: 10rpx;
+}
+
+.composer {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.composer-input {
+  flex: 1;
+  background: white;
+  border-radius: 999rpx;
+  padding: 14rpx 22rpx;
+  font-size: 28rpx;
+}
+
+.send-btn {
+  background: #2563eb !important;
+  color: white !important;
+  border-radius: 999rpx;
+  padding: 0 30rpx;
+  font-size: 28rpx;
+}

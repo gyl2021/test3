@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/chat/chat"
+  ],
+  "window": {
+    "navigationBarTitleText": "N8N 对话助手",
+    "navigationBarBackgroundColor": "#2563eb",
+    "navigationBarTextStyle": "white",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
