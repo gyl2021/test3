@@ -2,30 +2,15 @@ const { callN8NWebhook } = require('../../utils/n8n');
 
 Page({
   data: {
-    webhookUrl: '',
-    authHeaderName: 'X-API-KEY',
-    authHeaderValue: '',
     inputMessage: '',
     loading: false,
     messages: [
       {
         role: 'assistant',
-        content: '你好，我是 N8N 对话助手。请先配置 Webhook 与 Header Auth，然后开始聊天。',
+        content: '你好，我是 N8N 对话助手。Webhook 与认证请在 utils/n8n.js 的宏定义中手动配置，然后开始聊天。',
         files: []
       }
     ]
-  },
-
-  onWebhookInput(e) {
-    this.setData({ webhookUrl: e.detail.value.trim() });
-  },
-
-  onHeaderNameInput(e) {
-    this.setData({ authHeaderName: e.detail.value.trim() });
-  },
-
-  onHeaderValueInput(e) {
-    this.setData({ authHeaderValue: e.detail.value.trim() });
   },
 
   onMessageInput(e) {
@@ -33,7 +18,7 @@ Page({
   },
 
   async onSend() {
-    const { webhookUrl, authHeaderName, authHeaderValue, inputMessage, messages, loading } = this.data;
+    const { inputMessage, messages, loading } = this.data;
 
     if (loading) return;
 
@@ -55,9 +40,6 @@ Page({
     try {
       const history = nextMessages.map((item) => ({ role: item.role, content: item.content }));
       const result = await callN8NWebhook({
-        webhookUrl,
-        authHeaderName,
-        authHeaderValue,
         message,
         history
       });

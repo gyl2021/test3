@@ -138,3 +138,9 @@
   padding: 0 30rpx;
   font-size: 28rpx;
 }
+
+.hint {
+  font-size: 22rpx;
+  color: #64748b;
+  margin-top: 4rpx;
+}
