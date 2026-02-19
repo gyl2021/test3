@@ -7,15 +7,17 @@ const N8N_WEBHOOK_URL = '';
 
 /**
  * n8n Header Auth 模式：
- * - 'none'        不加鉴权头
- * - 'bearer'      自动拼接 Authorization: Bearer <token>
- * - 'x-api-key'   自动拼接 X-API-KEY: <token>
- * - 'custom'      使用 N8N_AUTH_HEADERS 数组
+ * - 'none'                 不加鉴权头
+ * - 'bearer'               Authorization: Bearer <token>
+ * - 'authorization-raw'    Authorization: <token原文>
+ * - 'x-api-key'            X-API-KEY: <token>
+ * - 'custom'               使用 N8N_AUTH_HEADERS 数组
  */
 const N8N_AUTH_MODE = 'none';
 
 /**
- * 当 N8N_AUTH_MODE 为 bearer/x-api-key 时使用。
+ * 当 N8N_AUTH_MODE 为 bearer/authorization-raw/x-api-key 时使用。
+ * 注意：如果已包含 "Bearer " 前缀，bearer 模式不会重复拼接。
  */
 const N8N_AUTH_TOKEN = '';
 
@@ -25,13 +27,24 @@ const N8N_AUTH_TOKEN = '';
  */
 const N8N_AUTH_HEADERS = [];
 
+function withBearerPrefix(token) {
+  const value = String(token || '').trim();
+  if (!value) return '';
+  return /^Bearer\s+/i.test(value) ? value : `Bearer ${value}`;
+}
+
 function buildAuthHeaders() {
   if (N8N_AUTH_MODE === 'bearer') {
-    return N8N_AUTH_TOKEN ? { Authorization: `Bearer ${N8N_AUTH_TOKEN}` } : {};
+    const authValue = withBearerPrefix(N8N_AUTH_TOKEN);
+    return authValue ? { Authorization: authValue } : {};
+  }
+
+  if (N8N_AUTH_MODE === 'authorization-raw') {
+    return N8N_AUTH_TOKEN ? { Authorization: String(N8N_AUTH_TOKEN).trim() } : {};
   }
 
   if (N8N_AUTH_MODE === 'x-api-key') {
-    return N8N_AUTH_TOKEN ? { 'X-API-KEY': N8N_AUTH_TOKEN } : {};
+    return N8N_AUTH_TOKEN ? { 'X-API-KEY': String(N8N_AUTH_TOKEN).trim() } : {};
   }
 
   if (N8N_AUTH_MODE !== 'custom') {
@@ -51,7 +64,21 @@ function buildAuthHeaders() {
 
 function formatError(statusCode, payload) {
   const detail = extractErrorDetail(payload);
-  return detail ? `n8n 请求失败，HTTP ${statusCode}：${detail}` : `n8n 请求失败，HTTP ${statusCode}`;
+  const normalizedDetail = normalizeServerMessage(detail);
+  return normalizedDetail
+    ? `n8n 请求失败，HTTP ${statusCode}：${normalizedDetail}`
+    : `n8n 请求失败，HTTP ${statusCode}`;
+}
+
+function normalizeServerMessage(message) {
+  const text = String(message || '').trim();
+  if (!text) return '';
+
+  if (/Authorizationdata\s+is\s+wrong!?/i.test(text)) {
+    return 'Authorization data is wrong!（请检查 N8N_AUTH_MODE 与 Token 格式是否匹配）';
+  }
+
+  return text;
 }
 
 function extractErrorDetail(payload) {
@@ -64,13 +91,7 @@ function extractErrorDetail(payload) {
   }
 
   if (typeof payload === 'object') {
-    return (
-      payload.message ||
-      payload.error ||
-      payload.reason ||
-      payload.description ||
-      ''
-    );
+    return payload.message || payload.error || payload.reason || payload.description || '';
   }
 
   return '';
