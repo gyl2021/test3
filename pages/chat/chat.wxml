@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="config-card">
+    <view class="title">N8N 配置</view>
+    <view class="hint">Webhook URL 与 Header Auth 均在 utils/n8n.js 的宏定义中配置</view>
+  </view>
+
+  <scroll-view class="chat-list" scroll-y enable-flex>
+    <block wx:for="{{messages}}" wx:key="index">
+      <view class="msg {{item.role === 'user' ? 'msg-user' : 'msg-assistant'}}">
+        <view class="bubble">{{item.content}}</view>
+        <view wx:if="{{item.files && item.files.length}}" class="file-list">
+          <view class="file-title">引用文件</view>
+          <block wx:for="{{item.files}}" wx:key="index">
+            <view class="file-item">
+              <view class="file-name">{{index + 1}}. {{item.name}}</view>
+              <view wx:if="{{item.source}}" class="file-source">来源：{{item.source}}</view>
+              <view wx:if="{{item.snippet}}" class="file-snippet">{{item.snippet}}</view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </block>
+    <view wx:if="{{loading}}" class="loading">正在等待 n8n 返回...</view>
+  </scroll-view>
+
+  <view class="composer">
+    <input class="composer-input" placeholder="输入消息..." value="{{inputMessage}}" bindinput="onMessageInput" confirm-type="send" bindconfirm="onSend" />
+    <button class="send-btn" loading="{{loading}}" disabled="{{loading}}" bindtap="onSend">发送</button>
+  </view>
+</view>
