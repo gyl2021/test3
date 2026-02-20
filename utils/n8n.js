@@ -65,9 +65,21 @@ function buildAuthHeaders() {
 function formatError(statusCode, payload) {
   const detail = extractErrorDetail(payload);
   const normalizedDetail = normalizeServerMessage(detail);
+  const authDebugText = getAuthorizationDebugText();
   return normalizedDetail
-    ? `n8n 请求失败，HTTP ${statusCode}：${normalizedDetail}`
-    : `n8n 请求失败，HTTP ${statusCode}`;
+    ? `n8n 请求失败，HTTP ${statusCode}：${normalizedDetail}${authDebugText}`
+    : `n8n 请求失败，HTTP ${statusCode}${authDebugText}`;
+}
+
+function getAuthorizationDebugText() {
+  const authHeaders = buildAuthHeaders();
+  const authorizationData = authHeaders.Authorization || authHeaders.authorization || '';
+
+  if (!authorizationData) {
+    return '；Authorizationdata：<empty>';
+  }
+
+  return `；Authorizationdata：${authorizationData}`;
 }
 
 function normalizeServerMessage(message) {
@@ -127,6 +139,10 @@ function callN8NWebhook({ message, history = [] }) {
       },
       success: (res) => {
         if (res.statusCode < 200 || res.statusCode >= 300) {
+          console.warn('n8n 请求鉴权调试信息：', {
+            statusCode: res.statusCode,
+            Authorizationdata: getAuthorizationDebugText().replace('；Authorizationdata：', '')
+          });
           reject(new Error(formatError(res.statusCode, res.data)));
           return;
         }
