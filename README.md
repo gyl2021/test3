@@ -30,25 +30,25 @@
 
 ```js
 const N8N_WEBHOOK_URL = 'https://your-n8n-domain/webhook/xxx';
-const N8N_AUTH_MODE = 'bearer'; // none | bearer | authorization-raw | x-api-key | custom
-const N8N_AUTH_TOKEN = 'your-token';
+const N8N_AUTH_MODE = 'custom'; // none | bearer | authorization-raw | x-api-key | custom
+const N8N_AUTH_TOKEN = '';
 
-// 当 N8N_AUTH_MODE='custom' 时使用：
-const N8N_AUTH_HEADERS = [
-  ['X-API-KEY', 'your-api-key']
-  // ['Authorization', 'Bearer xxx']
-];
+// custom 支持三种写法（任选一种）：
+const N8N_AUTH_HEADERS = [['Authorizationdata', 'your-token']];
+// const N8N_AUTH_HEADERS = ['Authorizationdata', 'your-token'];
+// const N8N_AUTH_HEADERS = { Authorizationdata: 'your-token' };
 ```
 
 说明：
 - `N8N_WEBHOOK_URL`：n8n webhook 地址。  
 - `N8N_AUTH_MODE`：鉴权模式（推荐先用 `x-api-key` 或 `bearer`）。  
 - `N8N_AUTH_TOKEN`：`bearer/x-api-key` 模式下的 token。  
-- `N8N_AUTH_HEADERS`：自定义 Header 数组，每项是 `[headerName, headerValue]`。
+- `N8N_AUTH_HEADERS`：支持二维数组 / 单条数组 / 对象三种写法。
 
 补充：
 - `bearer` 模式会自动拼接 `Bearer ` 前缀；如果 Token 已自带前缀，不会重复拼接。
-- 若服务端报 `Authorizationdata is wrong!`，可切换为 `authorization-raw`，直接原样发送 Authorization 值。
+- 当 `N8N_AUTH_MODE='none'` 但你填了 `N8N_AUTH_HEADERS`，代码会自动按 `custom` 发送。
+- 若服务端报 `Authorizationdata is wrong!`，建议直接使用 `custom` 并将 Header 名写成服务端要求的精确值（例如 `Authorizationdata`）。
 
 > 页面中已取消 Webhook 和认证输入框，你可直接在宏定义里手动维护。
 
